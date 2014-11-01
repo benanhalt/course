@@ -122,8 +122,9 @@ replicateA ::
   Int
   -> f a
   -> f (List a)
-replicateA =
-  error "todo"
+replicateA 0 fx = pure Nil
+replicateA n fx = (lift2 (:.)) fx (replicateA (n - 1) fx)
+
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -150,8 +151,11 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering =
-  error "todo"
+filtering p Nil = pure Nil
+filtering p (x :. xs) = (lift3 filtering') (p x) (pure x) (filtering p xs)
+  where
+    filtering' :: Bool -> a -> List a -> List a
+    filtering' px x xs = if px then x :. xs else xs
 
 -----------------------
 -- SUPPORT LIBRARIES --
